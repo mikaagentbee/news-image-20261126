@@ -39,7 +39,12 @@ if (bytes.length < 24 || !bytes.subarray(0, 8).equals(PNG_SIGNATURE)) {
 }
 
 // 3. The IHDR must declare exactly 1024x1024 (width/height are big-endian uint32
-// at offsets 16 and 20).
+// at offsets 16 and 20), and bytes 12-15 must spell IHDR.
+const chunkType = bytes.subarray(12, 16).toString("ascii");
+if (chunkType !== "IHDR") {
+  console.error(`entry.png failed PNG structure check: first chunk is ${chunkType}, expected IHDR`);
+  process.exit(1);
+}
 const width = bytes.readUInt32BE(16);
 const height = bytes.readUInt32BE(20);
 if (width !== EXPECTED_WIDTH || height !== EXPECTED_HEIGHT) {
